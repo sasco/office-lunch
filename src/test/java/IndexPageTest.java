@@ -22,7 +22,7 @@ public class IndexPageTest {
     }
     @Test
     public void expectIndexPageToContainHeading() {
-        chromeDriver.get("http://localhost");
+        chromeDriver.get(System.getenv("WEB_APP_URL"));
         assertThat(heading()).isEqualTo("Office Lunch");
     }
 
