@@ -1,0 +1,50 @@
+name: test-and-deploy
+run-name: deploy web-app and test it
+on: push
+jobs:
+  deploy-to-uat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: deploy to uat
+        uses: easingthemes/ssh-deploy@v2.1.5 
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          SOURCE: "webapp/*"
+          REMOTE_HOST: ${{ secrets.HOSTNAME }}
+          REMOTE_USER: ${{ secrets.USER }}
+          TARGET: "/home/www-data/html/uat/"
+  bdd:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'oracle'
+        cache: maven
+    - name: Install Google Chrome # Using shell script to install Google Chrome
+      run: |
+       chmod +x InstallChrome.sh
+        ./InstallChrome.sh    
+    - name: Build with Maven
+      env:
+          WEB_APP_URL: "http://3.95.147.121/uat/"
+      run: mvn -B test --file pom.xml
+  deploy-to-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: deploy to prod
+        uses: easingthemes/ssh-deploy@v2.1.5 
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          SOURCE: "webapp/*"
+          REMOTE_HOST: ${{ secrets.HOSTNAME }}
+          REMOTE_USER: ${{ secrets.USER }}
+          TARGET: "/home/www-data/html/prod/"
