@@ -17,6 +17,7 @@ jobs:
           REMOTE_USER: ${{ secrets.USER }}
           TARGET: "/home/www-data/html/uat/"
   bdd:
+    needs: deploy-to-uat
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -35,6 +36,7 @@ jobs:
           WEB_APP_URL: "http://3.95.147.121/uat/"
       run: mvn -B test --file pom.xml
   deploy-to-prod:
+    needs: bdd
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
